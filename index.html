@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Radar de preparación institucional para IA</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --panel:#f2f5fa;
+      --text:#172033;
+      --muted:#667085;
+      --border:#d9e0ea;
+      --accent:#2457c5;
+      --series:#2f80ed;
+      --green:#2e9f6b;
+      --orange:#e6902e;
+      --red:#cf4b4b;
+      --purple:#7357b8;
+      --teal:#1a9a9a;
+      --shadow:0 10px 28px rgba(22,34,51,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1240px;margin:0 auto;padding:28px 20px 48px}
+    h1{margin:0;font-size:clamp(28px,4vw,46px);line-height:1.08;color:#10356d}
+    .subtitle{margin:10px 0 24px;color:var(--muted);font-size:17px;max-width:900px}
+    .grid{display:grid;grid-template-columns:1.08fr .92fr;gap:20px;align-items:start}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow)}
+    .card-pad{padding:20px}
+    h2{font-size:22px;margin:0 0 8px;color:#173f79}
+    .small{font-size:14px;color:var(--muted);line-height:1.5}
+    .table-scroll{overflow:auto;margin-top:16px}
+    table{width:100%;border-collapse:collapse;min-width:670px}
+    th,td{padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+    th{text-align:left;font-size:13px;color:var(--muted);font-weight:700}
+    td:first-child{font-weight:700}
+    td:nth-child(2){color:var(--muted)}
+    select{
+      width:100%;min-width:160px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);
+      background:#fff;color:var(--text);font-size:16px;
+    }
+    select:focus,button:focus{outline:3px solid rgba(36,87,197,.18);outline-offset:2px}
+    .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+    button{
+      padding:11px 16px;border-radius:12px;border:1px solid var(--border);background:#fff;
+      font-weight:700;color:var(--text);cursor:pointer
+    }
+    button:hover{background:var(--panel)}
+    .pill{
+      background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:10px 14px;
+      text-align:right;min-width:160px
+    }
+    .pill .label{font-size:12px;color:var(--muted)}
+    .pill .value{font-size:17px;font-weight:800;margin-top:2px}
+    .chart-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap}
+    #radarSvg{display:block;width:100%;height:auto;margin-top:6px}
+    .radar-grid{fill:none;stroke:#d8dfeb;stroke-width:1.2}
+    .radar-axis{stroke:#d8dfeb;stroke-width:1}
+    .radar-shape{fill:rgba(47,128,237,.18);stroke:var(--series);stroke-width:3}
+    .radar-dot{fill:var(--series);stroke:#fff;stroke-width:2}
+    .radar-label{fill:var(--text);font-size:13px;font-weight:700}
+    .radar-level{fill:var(--muted);font-size:11px}
+    .scale{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+    .scale div{border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center;font-size:12px}
+    .scale strong{display:block;font-size:16px}
+    .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+    .summary-card{padding:18px}
+    .summary-title{font-weight:800;color:#173f79}
+    ol{padding-left:0;list-style:none;margin:12px 0 0}
+    li.rank{display:flex;justify-content:space-between;gap:12px;background:var(--panel);padding:10px 12px;border-radius:10px;margin-bottom:8px}
+    .note{margin-top:20px;padding:18px 20px;background:#eef4ff;border:1px solid #cddcff;border-radius:16px;line-height:1.55}
+    .footer{margin-top:14px;color:var(--muted);font-size:12px;text-align:center}
+    @media(max-width:900px){
+      .grid,.summary-grid{grid-template-columns:1fr}
+      .pill{text-align:left}
+    }
+    @media(max-width:520px){
+      .wrap{padding:18px 12px 32px}
+      .card-pad{padding:15px}
+      .scale{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Radar de preparación institucional para IA</h1>
+    <p class="subtitle">
+      Evalúa ocho dimensiones de tu organización. El radar se actualiza automáticamente para mostrar capacidades,
+      fortalezas y brechas que podrían influir en la implementación de un proyecto de inteligencia artificial en salud.
+    </p>
+
+    <section class="grid">
+      <article class="card card-pad">
+        <h2>Evalúa la preparación de tu organización</h2>
+        <p class="small">Selecciona el nivel que mejor describe la situación actual en cada dimensión.</p>
+
+        <div class="table-scroll">
+          <table aria-label="Tabla de preparación institucional">
+            <thead>
+              <tr>
+                <th>Dimensión</th>
+                <th>Pregunta orientadora</th>
+                <th>Nivel</th>
+              </tr>
+            </thead>
+            <tbody id="readinessRows"></tbody>
+          </table>
+        </div>
+
+        <div class="actions">
+          <button id="resetRadar" type="button">Restablecer</button>
+          <span id="validationMsg" class="small" aria-live="polite"></span>
+        </div>
+      </article>
+
+      <article class="card card-pad">
+        <div class="chart-head">
+          <div>
+            <h2>Radar de preparación institucional</h2>
+            <p class="small">No es una certificación; es una herramienta de diagnóstico y discusión.</p>
+          </div>
+          <div class="pill">
+            <div class="label">Nivel promedio</div>
+            <div id="averageLabel" class="value">En desarrollo</div>
+          </div>
+        </div>
+
+        <svg id="radarSvg" viewBox="0 0 620 520" role="img" aria-labelledby="radarTitle radarDesc">
+          <title id="radarTitle">Radar de preparación institucional para inteligencia artificial</title>
+          <desc id="radarDesc">Gráfico de ocho dimensiones que se actualiza según los niveles seleccionados.</desc>
+        </svg>
+
+        <div class="scale">
+          <div><strong>1</strong>Bajo</div>
+          <div><strong>2</strong>En desarrollo</div>
+          <div><strong>3</strong>Intermedio</div>
+          <div><strong>4</strong>Alto</div>
+        </div>
+      </article>
+    </section>
+
+    <section class="summary-grid">
+      <article class="card summary-card">
+        <div class="summary-title">Fortalezas actuales</div>
+        <p class="small">Dimensiones con mayor desarrollo relativo.</p>
+        <ol id="strengths"></ol>
+      </article>
+
+      <article class="card summary-card">
+        <div class="summary-title">Brechas prioritarias</div>
+        <p class="small">Áreas que podrían limitar la implementación.</p>
+        <ol id="gaps"></ol>
+      </article>
+
+      <article class="card summary-card">
+        <div class="summary-title">Lectura del resultado</div>
+        <p id="interpretation" class="small" style="font-size:15px;line-height:1.65"></p>
+      </article>
+    </section>
+
+    <aside class="note">
+      <strong>Uso en el Proyecto Integrador:</strong>
+      identifica las 2–3 capacidades más sólidas y las 2–3 brechas que deberían resolverse antes de implementar la solución.
+      El radar debe utilizarse como herramienta de planeación, no como una certificación formal de madurez institucional.
+    </aside>
+
+    <div class="footer">Módulo 5 · Planeación de proyectos de IA en Salud</div>
+  </main>
+
+<script>
+(() => {
+  const dimensions = [
+    {name:'Liderazgo y estrategia', short:'Liderazgo', question:'¿Existe una visión clara y responsables definidos?'},
+    {name:'Datos', short:'Datos', question:'¿Los datos son adecuados, accesibles y gobernados?'},
+    {name:'Infraestructura e integración', short:'Infraestructura', question:'¿Puede la institución operar e integrar la solución?'},
+    {name:'Personal y competencias', short:'Personas', question:'¿Existen conocimientos clínicos y técnicos suficientes?'},
+    {name:'Gobernanza', short:'Gobernanza', question:'¿Hay reglas para evaluar, autorizar y supervisar la IA?'},
+    {name:'Cultura y aceptación', short:'Cultura', question:'¿Los usuarios participan y están preparados para el cambio?'},
+    {name:'Ética y regulación', short:'Ética / regulación', question:'¿Se gestionan riesgos y requisitos aplicables?'},
+    {name:'Sostenibilidad', short:'Sostenibilidad', question:'¿Puede mantenerse la solución en el tiempo?'}
+  ];
+
+  const levels = {1:'Bajo', 2:'En desarrollo', 3:'Intermedio', 4:'Alto'};
+  const scores = new Array(dimensions.length).fill(2);
+
+  const tbody = document.getElementById('readinessRows');
+  const svg = document.getElementById('radarSvg');
+  const avgEl = document.getElementById('averageLabel');
+  const strengthsEl = document.getElementById('strengths');
+  const gapsEl = document.getElementById('gaps');
+  const interpretationEl = document.getElementById('interpretation');
+  const msgEl = document.getElementById('validationMsg');
+
+  dimensions.forEach((d, i) => {
+    const tr = document.createElement('tr');
+
+    const td1 = document.createElement('td');
+    td1.textContent = d.name;
+
+    const td2 = document.createElement('td');
+    td2.textContent = d.question;
+
+    const td3 = document.createElement('td');
+    const select = document.createElement('select');
+    select.setAttribute('aria-label', 'Nivel de ' + d.name);
+
+    Object.entries(levels).forEach(([value, label]) => {
+      const opt = document.createElement('option');
+      opt.value = value;
+      opt.textContent = value + ' · ' + label;
+      if (Number(value) === 2) opt.selected = true;
+      select.appendChild(opt);
+    });
+
+    select.addEventListener('change', () => {
+      scores[i] = Math.max(1, Math.min(4, Number(select.value) || 1));
+      render();
+    });
+
+    td3.appendChild(select);
+    tr.append(td1, td2, td3);
+    tbody.appendChild(tr);
+  });
+
+  function polar(cx, cy, r, angle) {
+    return [cx + Math.cos(angle) * r, cy + Math.sin(angle) * r];
+  }
+
+  function polygonPoints(values, radius, cx, cy) {
+    return values.map((v, i) => {
+      const a = -Math.PI / 2 + i * (Math.PI * 2 / values.length);
+      const p = polar(cx, cy, radius * (v / 4), a);
+      return p[0].toFixed(1) + ',' + p[1].toFixed(1);
+    }).join(' ');
+  }
+
+  function addSvg(tag, attrs, parent = svg) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.entries(attrs || {}).forEach(([k, v]) => el.setAttribute(k, v));
+    parent.appendChild(el);
+    return el;
+  }
+
+  function addLabel(text, x, y, anchor, parent) {
+    const el = addSvg('text', {x, y, 'text-anchor': anchor, class: 'radar-label'}, parent);
+    const parts = text.split(' / ');
+    parts.forEach((part, idx) => {
+      const t = addSvg('tspan', {x, dy: idx === 0 ? 0 : 16}, el);
+      t.textContent = part;
+    });
+  }
+
+  function renderRadar() {
+    while (svg.lastChild && !['TITLE','DESC'].includes(svg.lastChild.tagName)) {
+      svg.removeChild(svg.lastChild);
+    }
+
+    const g = addSvg('g', {});
+    const cx = 310, cy = 250, R = 155;
+
+    for (let level = 1; level <= 4; level++) {
+      addSvg('polygon', {
+        points: polygonPoints(new Array(8).fill(level), R, cx, cy),
+        class: 'radar-grid'
+      }, g);
+    }
+
+    dimensions.forEach((d, i) => {
+      const a = -Math.PI / 2 + i * (Math.PI * 2 / 8);
+      const p = polar(cx, cy, R, a);
+      addSvg('line', {x1: cx, y1: cy, x2: p[0], y2: p[1], class: 'radar-axis'}, g);
+    });
+
+    addSvg('polygon', {
+      points: polygonPoints(scores, R, cx, cy),
+      class: 'radar-shape'
+    }, g);
+
+    scores.forEach((v, i) => {
+      const a = -Math.PI / 2 + i * (Math.PI * 2 / 8);
+      const p = polar(cx, cy, R * (v / 4), a);
+      addSvg('circle', {cx: p[0], cy: p[1], r: 6, class: 'radar-dot'}, g);
+    });
+
+    dimensions.forEach((d, i) => {
+      const a = -Math.PI / 2 + i * (Math.PI * 2 / 8);
+      const p = polar(cx, cy, R + 48, a);
+      let anchor = 'middle';
+      if (Math.cos(a) > .25) anchor = 'start';
+      else if (Math.cos(a) < -.25) anchor = 'end';
+      addLabel(d.short, p[0], p[1], anchor, g);
+    });
+
+    [1,2,3,4].forEach(level => {
+      const t = addSvg('text', {
+        x: cx + 7,
+        y: cy - R * (level / 4) + 4,
+        class: 'radar-level'
+      }, g);
+      t.textContent = String(level);
+    });
+  }
+
+  function fillRankedList(container, items) {
+    container.innerHTML = '';
+    items.forEach(x => {
+      const li = document.createElement('li');
+      li.className = 'rank';
+      const name = document.createElement('span');
+      name.textContent = x.name;
+      const score = document.createElement('strong');
+      score.textContent = x.score + '/4';
+      li.append(name, score);
+      container.appendChild(li);
+    });
+  }
+
+  function renderSummary() {
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const rounded = Math.max(1, Math.min(4, Math.round(avg)));
+    avgEl.textContent = levels[rounded] + ' · ' + avg.toFixed(1) + '/4';
+
+    const ranked = dimensions.map((d, i) => ({...d, score: scores[i]}));
+    const strengths = [...ranked].sort((a,b) => b.score - a.score || a.name.localeCompare(b.name)).slice(0,3);
+    const gaps = [...ranked].sort((a,b) => a.score - b.score || a.name.localeCompare(b.name)).slice(0,3);
+
+    fillRankedList(strengthsEl, strengths);
+    fillRankedList(gapsEl, gaps);
+
+    if (avg < 1.75) {
+      interpretationEl.textContent = 'La capacidad institucional es limitada en varias dimensiones. Conviene resolver las brechas críticas antes de planear una implementación amplia.';
+    } else if (avg < 2.75) {
+      interpretationEl.textContent = 'Existen capacidades iniciales, pero todavía hay brechas relevantes. Prioriza las áreas con puntuaciones más bajas antes de avanzar.';
+    } else if (avg < 3.5) {
+      interpretationEl.textContent = 'La organización muestra una preparación moderada. El proyecto puede avanzar si se fortalecen las brechas específicas identificadas por el radar.';
+    } else {
+      interpretationEl.textContent = 'La organización muestra capacidades sólidas en la mayoría de las dimensiones. Aun así, cada proyecto debe evaluar sus requisitos y riesgos específicos.';
+    }
+  }
+
+  function render() {
+    renderRadar();
+    renderSummary();
+    msgEl.textContent = 'Radar actualizado.';
+  }
+
+  document.getElementById('resetRadar').addEventListener('click', () => {
+    scores.fill(2);
+    tbody.querySelectorAll('select').forEach(s => s.value = '2');
+    render();
+    msgEl.textContent = 'Evaluación restablecida al nivel “En desarrollo”.';
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
